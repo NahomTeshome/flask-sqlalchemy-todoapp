@@ -18,8 +18,13 @@
     </form>
 
     {% for task in tasks%}
+    <li>
+    <span> {{task.task_name}}</span>
+        <form action="/delete/{{task.id}}" method="post">
+            <button type="submit">Delete</button>
 
-    <h3> {{task.task_name}}</h3>
+        </form>
+    </li>
     {% endfor%}
 </body>
 </html>

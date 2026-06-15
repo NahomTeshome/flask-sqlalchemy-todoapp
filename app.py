@@ -62,7 +62,16 @@ def dashboard(username):
 
     return render_template("dashboard.html", username=username, tasks=user_tasks)
 
+@app.route('/delete/<int:task_id>',methods = ['POST'])
+def delete(task_id):
 
+    task_to_delete = Todo.query.get_or_404(task_id)
+    username = task_to_delete.owner.username
+
+    db.session.delete(task_to_delete)
+    db.session.commit()
+
+    return redirect(url_for('dashboard', username=username))
 
 if __name__ == "__main__":
     app.run(debug=True,port= 8500)
