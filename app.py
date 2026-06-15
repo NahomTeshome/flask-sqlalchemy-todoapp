@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request
+from flask import Flask, render_template,request,url_for,redirect
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -38,10 +38,29 @@ def login():
         user = User(username = current_user_name)
         db.session.add(user)
         db.session.commit()
-    return f"Hello {current_user_name} you have logged in succesfully"
 
+    return redirect(url_for('dashboard', username=current_user_name))
 
+temp_tasks = []
 
+@app.route("/dashboard/<username>",methods = ['GET','POST'])
+def dashboard(username):
+    
+    current_user = User.query.filter_by(username =  username).first()
+
+    if request.method == "POST":
+        new_task = request.form.get("todo_task")
+
+        if new_task:
+            new_todo = Todo(task_name = new_task, user_id = current_user.id)
+            db.session.add(new_todo)
+            db.session.commit()
+        
+        return redirect(url_for('dashboard', username=username))
+
+    user_tasks = current_user.todos
+
+    return render_template("dashboard.html", username=username, tasks=user_tasks)
 
 
 
