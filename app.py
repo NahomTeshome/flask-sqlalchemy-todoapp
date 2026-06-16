@@ -1,7 +1,9 @@
-from flask import Flask, render_template,request,url_for,redirect
+import os
+from flask import Flask, render_template,request,url_for,redirect,session
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SESSIONKEY')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
 db = SQLAlchemy(app)
@@ -24,30 +26,43 @@ class Todo(db.Model):
 
 @app.route('/')
 def home():
+
     return render_template('home.html')
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
 
     current_user_name = request.form.get("username")
+    if not current_user_name or current_user_name.strip() == "":
+            return redirect(url_for('home'))
 
     user = User.query.filter_by(username = current_user_name).first()
-
     if not user:
         user = User(username = current_user_name)
         db.session.add(user)
         db.session.commit()
+    
+    session['user_id'] = user.id
+
 
     return redirect(url_for('dashboard', username=current_user_name))
 
-temp_tasks = []
+@app.route('/logout')
+def logout():
+    session.pop('user_id',None)
+
+    return redirect(url_for('home'))
 
 @app.route("/dashboard/<username>",methods = ['GET','POST'])
 def dashboard(username):
     
     current_user = User.query.filter_by(username =  username).first()
+    
 
+    if not current_user or session.get('user_id') != current_user.id:
+        return redirect(url_for('login'))
+        
     if request.method == "POST":
         new_task = request.form.get("todo_task")
 
@@ -75,3 +90,5 @@ def delete(task_id):
 
 if __name__ == "__main__":
     app.run(debug=True,port= 8500)
+
+
