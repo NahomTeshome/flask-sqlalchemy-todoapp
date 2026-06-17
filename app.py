@@ -32,21 +32,23 @@ def home():
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    if request.method =='POST':
+        current_user_name = request.form.get("username")
+        if not current_user_name or current_user_name.strip() == "":
+                return redirect(url_for('home'))
 
-    current_user_name = request.form.get("username")
-    if not current_user_name or current_user_name.strip() == "":
-            return redirect(url_for('home'))
-
-    user = User.query.filter_by(username = current_user_name).first()
-    if not user:
-        user = User(username = current_user_name)
-        db.session.add(user)
-        db.session.commit()
+        user = User.query.filter_by(username = current_user_name).first()
+        if not user:
+            user = User(username = current_user_name)
+            db.session.add(user)
+            db.session.commit()
     
-    session['user_id'] = user.id
+        session['user_id'] = user.id
 
 
-    return redirect(url_for('dashboard', username=current_user_name))
+        return redirect(url_for('dashboard', username=current_user_name))
+        
+    return render_template('home.html')
 
 @app.route('/logout')
 def logout():
@@ -87,6 +89,21 @@ def delete(task_id):
     db.session.commit()
 
     return redirect(url_for('dashboard', username=username))
+@app.route('/togglecompletion/<int:task_id>',methods = ['POST'])
+def togglecompletion(task_id):
+
+    task_to_change = Todo.query.get_or_404(task_id)
+    username = task_to_change.owner.username
+
+    if task_to_change.is_complete == True:
+        task_to_change.is_complete = False
+    else:
+        task_to_change.is_complete = True
+
+    db.session.commit()
+
+    return redirect(url_for('dashboard', username=username))
+
 
 if __name__ == "__main__":
     app.run(debug=True,port= 8500)

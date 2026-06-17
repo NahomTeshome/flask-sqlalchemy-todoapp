@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static',filename = 'css/dashboard.css')}}">
+
     <title>Document</title>
 </head>
 <body>
@@ -21,8 +23,12 @@
 
     {% for task in tasks%}
     <li>
+        <form action="/togglecompletion/{{task.id}}" method="pOST">
+            <input type="checkbox" {% if task.is_complete %} checked {% endif %} onchange="this.form.submit()">
+        </form>
+
     <span> {{task.task_name}}</span>
-        <form action="/delete/{{task.id}}" method="post">
+        <form action="/delete/{{task.id}}" method="POST">
             <button type="submit">Delete</button>
 
         </form>
