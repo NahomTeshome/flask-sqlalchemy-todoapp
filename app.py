@@ -1,8 +1,11 @@
 import os
 from flask import Flask, render_template,request,url_for,redirect,session
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
+
 app.config['SECRET_KEY'] = os.environ.get('SESSIONKEY')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
@@ -12,6 +15,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False, unique=True)
+    password_hash = db.Column(db.String(128), nullable=False)
     
     todos = db.relationship('Todo', backref='owner', lazy=True)
 
@@ -34,19 +38,27 @@ def home():
 def login():
     if request.method =='POST':
         current_user_name = request.form.get("username")
-        if not current_user_name or current_user_name.strip() == "":
+        password_input = request.form.get("password")
+        if not current_user_name or current_user_name.strip() == "" or not password_input:
                 return redirect(url_for('home'))
 
         user = User.query.filter_by(username = current_user_name).first()
         if not user:
-            user = User(username = current_user_name)
+            hashed_password = bcrypt.generate_password_hash(password_input).decode('utf-8')
+
+            user = User(username = current_user_name,password_hash = hashed_password)
             db.session.add(user)
             db.session.commit()
-    
-        session['user_id'] = user.id
+        
+            session['user_id'] = user.id
 
 
-        return redirect(url_for('dashboard', username=current_user_name))
+            return redirect(url_for('dashboard', username=current_user_name))
+        else:
+            if bcrypt.check_password_hash(user.password_hash,password_input):
+                session['user_id'] = user.id
+                return redirect(url_for('dashboard', username=current_user_name))
+            return redirect(url_for('home'))
         
     return render_template('home.html')
 

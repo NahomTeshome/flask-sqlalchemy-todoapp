@@ -1,3 +1,87 @@
 li form{
     display: inline;
 }
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1{
+    text-align: center;
+}
+li{
+    list-style: none;
+    text-align: left;
+    justify-content: center;
+
+    margin-top: 3px;
+
+    font-size: 20px;
+    width: 800px;
+    min-height: 50px;
+    border: 2px solid black;
+    left: 50%;
+}
+
+.newTaskDiv{
+
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.newTaskDiv input{
+    font-size: 30px;
+    width: 400px;
+
+    border: 2px solid black;
+
+    border-radius: 2px;
+
+    transition-duration: 1s;
+
+}
+.newTaskDiv input:hover{
+    border-radius: 10px;
+}
+.newTaskDiv button{
+    font-size: 30px;
+    width: 300px;
+
+    color: white;
+    background-color: rgb(86, 72, 143);
+
+    transition-duration: 1s;
+
+}
+.newTaskDiv button:hover{
+    color: black;
+    background-color: white;
+}
+
+
+.taskDiv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.taskDiv button{
+    background-color:rgb(86, 72, 143) ;
+    color: white;
+
+    min-height: 30px;
+
+    margin-top: 1%;
+
+    transition-duration: 1s;
+}
+.taskDiv button:hover{
+    background-color: white;
+    color: black;
+}
+
+.completed-task {
+    text-decoration: line-through;
+    color: #888888;
+}
